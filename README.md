@@ -17,7 +17,7 @@ La aplicación permite:
 
 ### Acceso directo
 
-[**Abrir la aplicación web**](https://reconocimiento-instrumentos-quirurgicos-ewuruhnvnvwnkdijjskntl.streamlit.app)
+[**Abrir la aplicación web**]([https://reconocimiento-instrumentos-quirurgicos-ewuruhnvnvwnkdijjskntl.streamlit.app](https://reconocimiento-instrumentos-quirurgicos-ewuruhnvvnwnkdijjskntl.streamlit.app)
 
 > La aplicación puede tardar unos segundos en iniciar si estuvo inactiva.
 
