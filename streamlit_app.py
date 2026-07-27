@@ -4,6 +4,12 @@ import csv
 import hashlib
 import html
 import io
+from __future__ import annotations
+
+import csv
+import hashlib
+import html
+import io
 import json
 import os
 import re
@@ -1310,7 +1316,7 @@ except Exception as error:
 
 
 with st.sidebar:
-    render_html("### Panel de control")
+    st.markdown("### Panel de control")
     st.caption(
         "Configure el contexto del análisis y gestione "
         "las validaciones guardadas."
@@ -1387,7 +1393,7 @@ left, right = st.columns(
 
 with left:
     with st.container(border=True):
-        st.markdown(
+        render_html(
             """
             <div class="sv-section-kicker">Captura</div>
             <div class="sv-section-title">Registrar imagen</div>
@@ -1395,7 +1401,8 @@ with left:
                 Tome una fotografía centrada, con iluminación
                 uniforme y con los instrumentos completamente visibles.
             </div>
-            """)
+            """
+        )
 
         upload_tab, camera_tab = st.tabs(
             ["Subir archivo", "Usar cámara"]
