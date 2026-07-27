@@ -1,0 +1,6 @@
+streamlit==1.52.0
+tensorflow==2.19.0
+numpy>=1.26,<2.2
+pandas>=2.2,<3
+Pillow>=10,<12
+h5py>=3.10,<4
