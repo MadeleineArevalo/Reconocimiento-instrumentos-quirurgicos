@@ -66,9 +66,7 @@ Este proyecto integra conocimientos de:
 
 ### Video único: demostración funcional y técnica — 2 minutos
 
-> Reemplace `ID_DEL_VIDEO` por el identificador real del video publicado.
-
-[![SurgiVision AI - Video de demostración](https://img.youtube.com/vi/ID_DEL_VIDEO/maxresdefault.jpg)](https://youtu.be/ID_DEL_VIDEO)
+https://github.com/user-attachments/assets/fc3929fb-02dc-4870-a1e3-9e9dbeee843e
 
 ### Estructura del video
 
