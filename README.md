@@ -143,83 +143,21 @@ https://github.com/user-attachments/assets/fc3929fb-02dc-4870-a1e3-9e9dbeee843e
 - Gestión de la versión del modelo.
 - Registro de fecha, hash y observaciones.
 
----
-
-Copia y pega este bloque directamente en tu archivo `README_SurgiVision_PORTAFOLIO_COMPLETO.md`:
-
-```markdown
 ## ⏱️ Estructura del video de 2 minutos
 
 ### 1. Presentación del proyecto — 0:00 a 0:12
 
-- Presentación de la autora.
-- Nombre del sistema: **SurgiVision AI**.
-- Objetivo general del proyecto.
-- Clasificación multilabel de instrumentos quirúrgicos.
-
 ### 2. Funcionamiento de la aplicación — 0:12 a 0:38
-
-- Registro opcional del código de control.
-- Selección del momento del procedimiento.
-- Carga de una imagen desde el dispositivo.
-- Captura de una fotografía mediante la cámara.
-- Presentación de las cuatro clases reconocidas.
-- Ejecución del análisis desde la interfaz.
 
 ### 3. Resultado y revisión humana — 0:38 a 0:58
 
-- Visualización de los instrumentos reconocidos.
-- Presentación de las probabilidades por clase.
-- Comparación con los umbrales de decisión.
-- Estado de verificación pendiente.
-- Confirmación del resultado.
-- Corrección de las clases reconocidas.
-- Registro opcional de observaciones.
-
 ### 4. Código y proceso de predicción — 0:58 a 1:22
-
-- Entrada de imágenes de `224 × 224` píxeles.
-- Conversión de la imagen a formato RGB.
-- Generación de tres vistas:
-  - Imagen original.
-  - Reflejo horizontal.
-  - Recorte central del 85 %.
-- Obtención de probabilidades para cada clase.
-- Selección del valor máximo entre las tres vistas.
-- Comparación con el umbral específico de cada instrumento.
-- Generación del vector multilabel final.
 
 ### 5. Rendimiento del modelo — 1:22 a 1:40
 
-- AUC: `0.9434`.
-- Exactitud binaria: `0.8591`.
-- Precisión micro: `0.8053`.
-- Recall micro: `0.7839`.
-- F1 macro: `0.7937`.
-- Exactitud multilabel exacta: `0.6514`.
-- Presentación resumida del desempeño por clase.
-
 ### 6. Validación externa — 1:40 a 1:53
 
-- Uso de imágenes nuevas no empleadas durante el entrenamiento.
-- Evaluación del modelo en condiciones diferentes.
-- Confirmación o corrección de la predicción.
-- Registro de las etiquetas predichas.
-- Registro de las etiquetas validadas.
-- Almacenamiento de probabilidades y observaciones.
-- Exportación de resultados en archivos CSV y JSONL.
-- Evaluación posterior de la capacidad de generalización.
-
 ### 7. Cierre y alcance — 1:53 a 2:00
-
-- Integración de aprendizaje profundo, aplicación web y revisión humana.
-- Aplicación académica para reconocimiento de instrumental.
-- Posibilidad de ampliar el sistema a nuevas clases.
-- Aclaración de que el prototipo no reemplaza el conteo manual.
-- Aclaración de que no sustituye los protocolos del personal de salud.
-```
-
-
 ---
 
 ## 🎯 Problema y solución
@@ -257,9 +195,7 @@ SurgiVision AI es un clasificador multilabel que:
 
 ### Acceso directo a la demostración
 
-[**Abrir SurgiVision AI en Gradio**](https://979e429e1407f01db3.gradio.live/)
-
-> La aplicación se ejecuta mediante un enlace público temporal de Gradio. Si el enlace deja de estar disponible, será necesario volver a ejecutar el cuaderno en Google Colab y actualizar esta dirección.
+[**Abrir SurgiVision AI**](https://surgivision-ai-asistente-instrumental-quirurgico.streamlit.app/)
 
 ### Funciones disponibles
 
@@ -992,7 +928,7 @@ Contiene:
 - Cuatro salidas.
 - Parámetros necesarios para inferencia.
 
-### `app.py`
+### `streamlit_app.py`
 
 Punto de entrada de Streamlit:
 
@@ -1444,12 +1380,6 @@ Para consultas relacionadas con:
 - Miriam Tatiana Aucapiña Calle
 - Esteban Tuquiñagui
 
-Correo de contacto:
-
-```text
-[COLOCAR CORREO PROFESIONAL]
-```
-
 Repositorio:
 
 [MadeleineArevalo/Reconocimiento-instrumentos-quirurgicos](https://github.com/MadeleineArevalo/Reconocimiento-instrumentos-quirurgicos)
@@ -1479,23 +1409,6 @@ El repositorio puede incluir:
 - Información identificable.
 - Datos externos sensibles.
 - Archivos de retroalimentación privados.
-
-### Licencia
-
-```text
-[DEFINIR LICENCIA DEL REPOSITORIO]
-```
-
-Opciones habituales:
-
-- MIT.
-- Apache-2.0.
-- Licencia académica personalizada.
-- Creative Commons para documentación.
-
-> Antes de declarar una licencia, el equipo debe acordar qué usos y redistribuciones desea permitir.
-
----
 
 ## 📌 Estado del proyecto
 
