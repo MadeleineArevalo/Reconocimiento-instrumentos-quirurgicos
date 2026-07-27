@@ -997,35 +997,38 @@ def class_cards_html() -> str:
     cards = []
 
     for name in CLASS_NAMES:
-        cards.append(
-            f"""
-            <div class="sv-class-card">
-                <div class="sv-class-badge">
-                    {html.escape(ABREVIATURAS[name])}
-                </div>
-                <div>
-                    <div class="sv-class-name">
-                        {html.escape(name)}
-                    </div>
-                    <div class="sv-class-caption">
-                        Clase disponible en el modelo
-                    </div>
-                </div>
-            </div>
-            """
+        abbreviation = html.escape(
+            ABREVIATURAS[name]
         )
+        safe_name = html.escape(name)
+
+        card = (
+            '<div class="sv-class-card">'
+            '<div class="sv-class-badge">'
+            f'{abbreviation}'
+            '</div>'
+            '<div>'
+            '<div class="sv-class-name">'
+            f'{safe_name}'
+            '</div>'
+            '<div class="sv-class-caption">'
+            'Clase disponible en el modelo'
+            '</div>'
+            '</div>'
+            '</div>'
+        )
+
+        cards.append(card)
 
     return (
         '<div class="sv-class-grid">'
-        + "".join(cards)
-        + "</div>"
-        + """
-        <div class="sv-note">
-            El sistema reconoce únicamente las clases mostradas.
-            Un instrumento diferente puede no ser identificado aunque
-            esté presente en la imagen.
-        </div>
-        """
+        f'{"".join(cards)}'
+        '</div>'
+        '<div class="sv-note">'
+        'El sistema reconoce únicamente las clases mostradas. '
+        'Un instrumento diferente puede no ser identificado '
+        'aunque esté presente en la imagen.'
+        '</div>'
     )
 
 
