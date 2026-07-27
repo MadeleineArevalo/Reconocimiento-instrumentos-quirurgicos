@@ -120,9 +120,11 @@ CSS = """
         var(--sv-background);
 }
 
-.block-container {
+/* El encabezado superior de Streamlit es fijo.
+   Se reserva espacio para impedir que cubra el banner de la aplicación. */
+[data-testid="stMain"] .block-container {
     max-width: 1450px;
-    padding-top: 1.1rem;
+    padding-top: 5rem;
     padding-bottom: 2.5rem;
 }
 
@@ -143,8 +145,10 @@ CSS = """
         radial-gradient(circle at 72% 95%, rgba(87,221,201,.16), transparent 26%),
         linear-gradient(122deg, var(--sv-navy-950) 0%, var(--sv-blue-650) 62%, var(--sv-teal-750) 100%);
     border-radius: 26px;
-    padding: 31px 35px;
+    padding: 32px 35px 34px;
+    margin-top: 0;
     margin-bottom: 14px;
+    min-height: 176px;
     color: white;
     box-shadow: 0 20px 48px rgba(7,28,51,.20);
 }
@@ -177,9 +181,10 @@ CSS = """
 
 .sv-title {
     margin: 0;
+    padding-top: 2px;
     color: white;
     font-size: 32px;
-    line-height: 1.07;
+    line-height: 1.18;
     letter-spacing: -.65px;
 }
 
@@ -560,8 +565,13 @@ div.stButton > button {
 }
 
 @media (max-width: 720px) {
+    [data-testid="stMain"] .block-container {
+        padding-top: 4.5rem;
+    }
+
     .sv-hero {
-        padding: 23px;
+        padding: 24px;
+        min-height: auto;
     }
     .sv-title {
         font-size: 25px;
@@ -1196,8 +1206,33 @@ for key, default in SESSION_DEFAULTS.items():
 
 
 def reset_analysis() -> None:
+    """Limpia el análisis desde el callback del botón Nuevo análisis."""
+
+    next_nonce = int(
+        st.session_state.get("widget_nonce", 0)
+    ) + 1
+
     for key, default in SESSION_DEFAULTS.items():
-        st.session_state[key] = default
+        if key == "widget_nonce":
+            continue
+
+        if isinstance(default, list):
+            st.session_state[key] = default.copy()
+        elif isinstance(default, dict):
+            st.session_state[key] = default.copy()
+        else:
+            st.session_state[key] = default
+
+    # Cambiar el nonce crea widgets nuevos y limpia el cargador,
+    # la cámara, las observaciones y la selección de corrección.
+    st.session_state["widget_nonce"] = next_nonce
+
+    # Estas claves pertenecen a widgets del panel lateral.
+    # Es válido modificarlas dentro de un callback.
+    st.session_state["control_code"] = ""
+    st.session_state["control_moment"] = (
+        "Antes del procedimiento"
+    )
 
 
 # =============================================================================
@@ -1458,18 +1493,11 @@ with left:
             )
 
         with reset_col:
-            if st.button(
+            st.button(
                 "Nuevo análisis",
                 use_container_width=True,
-            ):
-                current_nonce = st.session_state.widget_nonce
-                reset_analysis()
-                st.session_state.widget_nonce = current_nonce + 1
-                st.session_state.control_code = ""
-                st.session_state.control_moment = (
-                    "Antes del procedimiento"
-                )
-                st.rerun()
+                on_click=reset_analysis,
+            )
 
         if analyze_clicked:
             if current_image is None:
