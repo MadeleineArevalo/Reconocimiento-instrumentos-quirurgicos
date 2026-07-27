@@ -8,6 +8,7 @@ import json
 import os
 import re
 import threading
+import textwrap
 import uuid
 import zipfile
 from datetime import datetime, timezone
@@ -576,6 +577,11 @@ div.stButton > button {
 """
 
 
+def render_html(markup: str) -> None:
+    """Renderiza HTML/CSS sin que Streamlit muestre las etiquetas como texto."""
+    st.html(textwrap.dedent(str(markup)).strip())
+
+
 # =============================================================================
 # MODELO E INFERENCIA
 # =============================================================================
@@ -1035,64 +1041,74 @@ def class_cards_html() -> str:
 def result_status_html(
     result: dict[str, Any] | None,
 ) -> str:
+    """Construye el resultado clínico sin sangrías HTML problemáticas."""
+
     if result is None:
-        return """
-        <div class="sv-status sv-status-idle">
-            <p class="sv-status-title">Preparado para iniciar</p>
-            <p class="sv-status-copy">
-                Cargue o capture una imagen y seleccione
-                <b>Analizar imagen</b>.
-            </p>
-        </div>
-        """
+        return (
+            '<div class="sv-status sv-status-idle">'
+            '<p class="sv-status-title">Preparado para iniciar</p>'
+            '<p class="sv-status-copy">'
+            'Cargue o capture una imagen y seleccione '
+            '<b>Analizar imagen</b>.'
+            '</p>'
+            '</div>'
+        )
 
     detected = result["instrumentos_detectados"]
 
     if detected:
-        cards = "".join(
-            f"""
-            <div class="sv-result-card">
-                <span class="sv-result-check">✓</span>
-                <span>{html.escape(label)}</span>
-            </div>
-            """
-            for label in detected
-        )
+        cards = []
 
-        count_text = (
-            "Se reconoció 1 tipo de instrumento."
-            if len(detected) == 1
-            else (
+        for label in detected:
+            safe_label = html.escape(str(label))
+
+            card = (
+                '<div class="sv-result-card">'
+                '<span class="sv-result-check">✓</span>'
+                f'<span>{safe_label}</span>'
+                '</div>'
+            )
+
+            cards.append(card)
+
+        cards_html = "".join(cards)
+
+        if len(detected) == 1:
+            count_text = "Se reconoció 1 tipo de instrumento."
+        else:
+            count_text = (
                 f"Se reconocieron {len(detected)} "
                 "tipos de instrumentos."
             )
+
+        return (
+            '<div class="sv-status sv-status-success">'
+            '<p class="sv-status-title">'
+            'Instrumentos reconocidos'
+            '</p>'
+            '<p class="sv-status-copy">'
+            f'{count_text} '
+            'Compruebe visualmente la identificación '
+            'antes de guardarla.'
+            '</p>'
+            '<div class="sv-result-grid">'
+            f'{cards_html}'
+            '</div>'
+            '</div>'
         )
 
-        return f"""
-        <div class="sv-status sv-status-success">
-            <p class="sv-status-title">
-                Instrumentos reconocidos
-            </p>
-            <p class="sv-status-copy">
-                {count_text} Compruebe visualmente la identificación
-                antes de guardarla.
-            </p>
-            <div class="sv-result-grid">{cards}</div>
-        </div>
-        """
-
-    return """
-    <div class="sv-status sv-status-empty">
-        <p class="sv-status-title">
-            No se reconocieron instrumentos
-        </p>
-        <p class="sv-status-copy">
-            Ninguna de las cuatro clases disponibles fue identificada.
-            Confirme el resultado o seleccione las clases correctas
-            cuando el modelo haya omitido algún instrumento.
-        </p>
-    </div>
-    """
+    return (
+        '<div class="sv-status sv-status-empty">'
+        '<p class="sv-status-title">'
+        'No se reconocieron instrumentos'
+        '</p>'
+        '<p class="sv-status-copy">'
+        'Ninguna de las cuatro clases disponibles fue identificada. '
+        'Confirme el resultado o seleccione las clases correctas '
+        'cuando el modelo haya omitido algún instrumento.'
+        '</p>'
+        '</div>'
+    )
 
 
 def summary_html(
@@ -1101,6 +1117,8 @@ def summary_html(
     moment: str,
     feedback_saved: bool,
 ) -> str:
+    """Construye el resumen clínico como HTML continuo y válido."""
+
     if result is None:
         result_value = "Pendiente"
         result_note = "Aún no se ha ejecutado el análisis."
@@ -1113,67 +1131,53 @@ def summary_html(
 
         if not detected:
             result_value = "Sin reconocimiento"
-            result_note = (
-                "Ninguna clase disponible fue identificada."
-            )
+            result_note = "Ninguna clase disponible fue identificada."
         elif len(detected) == 1:
             result_value = "1 tipo reconocido"
-            result_note = detected[0]
+            result_note = str(detected[0])
         else:
-            result_value = (
-                f"{len(detected)} tipos reconocidos"
-            )
+            result_value = f"{len(detected)} tipos reconocidos"
             result_note = "Resultado multilabel."
 
-    validation_value = (
-        "Guardada"
-        if feedback_saved
-        else "Pendiente"
-    )
+    validation_value = "Guardada" if feedback_saved else "Pendiente"
     validation_note = (
         "La revisión se incorporó al conjunto validado."
         if feedback_saved
         else "Confirme o corrija las etiquetas."
     )
 
-    safe_code = html.escape(
-        str(code).strip() or "No registrado"
-    )
-    safe_moment = html.escape(
-        str(moment or "No especificado")
-    )
+    safe_result_value = html.escape(str(result_value))
+    safe_result_note = html.escape(str(result_note))
+    safe_image_value = html.escape(str(image_value))
+    safe_image_note = html.escape(str(image_note))
+    safe_validation_value = html.escape(str(validation_value))
+    safe_validation_note = html.escape(str(validation_note))
+    safe_code = html.escape(str(code).strip() or "No registrado")
+    safe_moment = html.escape(str(moment or "No especificado"))
 
-    return f"""
-    <div class="sv-summary-grid">
-        <div class="sv-summary-card">
-            <div class="sv-summary-label">Resultado</div>
-            <div class="sv-summary-value">
-                {html.escape(result_value)}
-            </div>
-            <div class="sv-summary-note">
-                {html.escape(result_note)}
-            </div>
-        </div>
-        <div class="sv-summary-card">
-            <div class="sv-summary-label">Imagen</div>
-            <div class="sv-summary-value">{image_value}</div>
-            <div class="sv-summary-note">{image_note}</div>
-        </div>
-        <div class="sv-summary-card">
-            <div class="sv-summary-label">Validación</div>
-            <div class="sv-summary-value">
-                {validation_value}
-            </div>
-            <div class="sv-summary-note">
-                {validation_note}
-            </div>
-        </div>
-    </div>
-    <div class="sv-context">
-        <div><b>Código de control:</b> {safe_code}</div>
-        <div><b>Momento:</b> {safe_moment}</div>
-    </div>
-    """
+    return (
+        '<div class="sv-summary-grid">'
+        '<div class="sv-summary-card">'
+        '<div class="sv-summary-label">Resultado</div>'
+        f'<div class="sv-summary-value">{safe_result_value}</div>'
+        f'<div class="sv-summary-note">{safe_result_note}</div>'
+        '</div>'
+        '<div class="sv-summary-card">'
+        '<div class="sv-summary-label">Imagen</div>'
+        f'<div class="sv-summary-value">{safe_image_value}</div>'
+        f'<div class="sv-summary-note">{safe_image_note}</div>'
+        '</div>'
+        '<div class="sv-summary-card">'
+        '<div class="sv-summary-label">Validación</div>'
+        f'<div class="sv-summary-value">{safe_validation_value}</div>'
+        f'<div class="sv-summary-note">{safe_validation_note}</div>'
+        '</div>'
+        '</div>'
+        '<div class="sv-context">'
+        f'<div><b>Código de control:</b> {safe_code}</div>'
+        f'<div><b>Momento:</b> {safe_moment}</div>'
+        '</div>'
+    )
 
 
 # =============================================================================
@@ -1198,18 +1202,35 @@ for key, default in SESSION_DEFAULTS.items():
         st.session_state[key] = default
 
 
+def _copy_default(value: Any) -> Any:
+    """Copia valores mutables antes de guardarlos en session_state."""
+    if isinstance(value, list):
+        return value.copy()
+    if isinstance(value, dict):
+        return value.copy()
+    return value
+
+
 def reset_analysis() -> None:
+    """Limpia el análisis desde el callback de Nuevo análisis."""
+
+    next_nonce = int(st.session_state.get("widget_nonce", 0)) + 1
+
     for key, default in SESSION_DEFAULTS.items():
-        st.session_state[key] = default
+        st.session_state[key] = _copy_default(default)
+
+    st.session_state.widget_nonce = next_nonce
+    st.session_state.control_code = ""
+    st.session_state.control_moment = "Antes del procedimiento"
 
 
 # =============================================================================
 # APLICACIÓN
 # =============================================================================
 
-st.markdown(CSS, unsafe_allow_html=True)
+render_html(CSS)
 
-st.markdown(
+render_html(
     """
     <div class="sv-hero">
         <div class="sv-hero-row">
@@ -1232,11 +1253,9 @@ st.markdown(
             PROTOTIPO ACADÉMICO · APOYO VISUAL CON VALIDACIÓN HUMANA
         </div>
     </div>
-    """,
-    unsafe_allow_html=True,
-)
+    """)
 
-st.markdown(
+render_html(
     """
     <div class="sv-feature-grid">
         <div class="sv-feature-card">
@@ -1273,9 +1292,7 @@ st.markdown(
             </div>
         </div>
     </div>
-    """,
-    unsafe_allow_html=True,
-)
+    """)
 
 try:
     model = load_model_cached(str(MODEL_PATH))
@@ -1293,7 +1310,7 @@ except Exception as error:
 
 
 with st.sidebar:
-    st.markdown("### Panel de control")
+    render_html("### Panel de control")
     st.caption(
         "Configure el contexto del análisis y gestione "
         "las validaciones guardadas."
@@ -1315,6 +1332,7 @@ with st.sidebar:
             "Control de bandeja",
             "Demostración académica",
         ],
+        index=0,
         key="control_moment",
     )
 
@@ -1377,9 +1395,7 @@ with left:
                 Tome una fotografía centrada, con iluminación
                 uniforme y con los instrumentos completamente visibles.
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+            """)
 
         upload_tab, camera_tab = st.tabs(
             ["Subir archivo", "Usar cámara"]
@@ -1464,18 +1480,11 @@ with left:
             )
 
         with reset_col:
-            if st.button(
+            st.button(
                 "Nuevo análisis",
                 use_container_width=True,
-            ):
-                current_nonce = st.session_state.widget_nonce
-                reset_analysis()
-                st.session_state.widget_nonce = current_nonce + 1
-                st.session_state.control_code = ""
-                st.session_state.control_moment = (
-                    "Antes del procedimiento"
-                )
-                st.rerun()
+                on_click=reset_analysis,
+            )
 
         if analyze_clicked:
             if current_image is None:
@@ -1510,21 +1519,19 @@ with left:
                             f"Detalle: {error}"
                         )
 
-        st.markdown(
+        render_html(
             """
             <div class="sv-note">
                 <b>Captura recomendada:</b> separe los instrumentos,
                 evite reflejos intensos, fondos metálicos y
                 superposiciones que oculten su forma.
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+            """)
 
 
 with right:
     with st.container(border=True):
-        st.markdown(
+        render_html(
             """
             <div class="sv-section-kicker">Capacidades</div>
             <div class="sv-section-title">
@@ -1534,16 +1541,12 @@ with right:
                 La versión actual está limitada a las siguientes
                 cuatro clases.
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            class_cards_html(),
-            unsafe_allow_html=True,
-        )
+            """)
+        render_html(
+            class_cards_html())
 
     with st.container(border=True):
-        st.markdown(
+        render_html(
             """
             <div class="sv-section-kicker">Resultado</div>
             <div class="sv-section-title">
@@ -1553,29 +1556,23 @@ with right:
                 La identificación es preliminar y debe validarse
                 mediante inspección visual.
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+            """)
 
         result = st.session_state.result
 
-        st.markdown(
-            result_status_html(result),
-            unsafe_allow_html=True,
-        )
+        render_html(
+            result_status_html(result))
 
-        st.markdown(
+        render_html(
             summary_html(
                 result,
                 code,
                 moment,
                 st.session_state.feedback_saved,
-            ),
-            unsafe_allow_html=True,
-        )
+            ))
 
     with st.container(border=True):
-        st.markdown(
+        render_html(
             """
             <div class="sv-feedback-head">
                 <div class="sv-feedback-title">
@@ -1590,9 +1587,7 @@ with right:
                 correctas. La imagen y la revisión se guardarán
                 para construir un conjunto validado.
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+            """)
 
         observations = st.text_area(
             "Observaciones de la validación",
@@ -1730,7 +1725,7 @@ with right:
             )
 
 
-st.markdown(
+render_html(
     """
     <div class="sv-footer">
         <b>Aviso de uso:</b> SurgiVision AI es una prueba de
@@ -1739,6 +1734,4 @@ st.markdown(
         verificación establecida por el establecimiento de salud
         y no debe utilizarse para tomar decisiones clínicas.
     </div>
-    """,
-    unsafe_allow_html=True,
-)
+    """)
